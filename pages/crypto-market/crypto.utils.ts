@@ -1,0 +1,1 @@
+export const formatNumber = (num: number) => Intl.NumberFormat('id-ID').format(num)

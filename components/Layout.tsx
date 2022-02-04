@@ -60,7 +60,7 @@ const Layout = ({
         py={2}
         w="full"
       >
-        <footer>
+        <footer style={{ backgroundColor: 'white' }}>
           <Container maxW={{ xl: "1200px" }}>
             <Flex>
               <Box>
