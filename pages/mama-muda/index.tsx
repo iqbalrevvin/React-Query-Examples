@@ -18,8 +18,33 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import Layout from "../../components/Layout";
+import { useQuery } from "react-query";
+import MamaTable from "./MamaTable";
+
+const getMessages = async () => {
+  const URL = 'http://localhost:3000/api/messages';
+  const result = await fetch(URL);
+  return await result.json();
+}
+
+export interface MessageProps {
+  id: number;
+  createdAt: string;
+  phoneNumber: number;
+  message: string;
+  status?: string;
+}
+
+export function formatDate(date: string|undefined){
+  return new Date(date).toLocaleDateString('id-ID');
+}
 
 export default function MamaMuda() {
+  const { data, isSuccess } = useQuery('get-mama-muda', getMessages, {
+    staleTime: 5000,
+    refetchInterval: 5000,
+  });
+
   return (
     <Layout title="💌 Mama Muda" subTitle="Minta Pulsa">
       <Flex>
@@ -78,68 +103,7 @@ export default function MamaMuda() {
           </Box>
         </Box>
         <Box flex="1">
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Date</Th>
-                <Th>Phone Number</Th>
-                <Th>Message</Th>
-                <Th>Status</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              <Tr>
-                <Td>1/1/2021</Td>
-                <Td>085267852222</Td>
-                <Td>
-                  Mama lagi di kantor polisi, kirim pulsa 10jt sekarang. CEPAT !
-                </Td>
-                <Td>
-                  <Badge colorScheme="yellow">waiting</Badge>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>1/1/2021</Td>
-                <Td>085267852333</Td>
-                <Td>
-                  Mama lagi di kantor lurah, kirim pulsa 20jt sekarang. CEPAT !
-                </Td>
-                <Td>
-                  <Badge colorScheme="green">success</Badge>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>1/1/2021</Td>
-                <Td>085267852444</Td>
-                <Td>
-                  Mama lagi di mana mana, kirim pulsa 30jt sekarang. CEPAT !
-                </Td>
-                <Td>
-                  <Badge colorScheme="red">failed</Badge>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>1/1/2021</Td>
-                <Td>085267852444</Td>
-                <Td>
-                  Mama lagi di mana mana, kirim pulsa 30jt sekarang. CEPAT !
-                </Td>
-                <Td>
-                  <Badge colorScheme="red">failed</Badge>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>1/1/2021</Td>
-                <Td>085267852444</Td>
-                <Td>
-                  Mama lagi di mana mana, kirim pulsa 30jt sekarang. CEPAT !
-                </Td>
-                <Td>
-                  <Badge colorScheme="red">failed</Badge>
-                </Td>
-              </Tr>
-            </Tbody>
-          </Table>
+          <MamaTable data={data} />
         </Box>
       </Flex>
     </Layout>

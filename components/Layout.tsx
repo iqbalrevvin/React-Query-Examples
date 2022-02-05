@@ -48,8 +48,10 @@ const Layout = ({
         <Spacer />
         <ColorModeSwitcher />
       </Flex>
-
-      {children}
+      <Box pb={20}>
+        {children}
+      </Box>
+      
       <Box
         position="fixed"
         bottom="0"

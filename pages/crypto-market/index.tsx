@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   Badge,
   Flex,
@@ -11,10 +11,12 @@ import {
   Image,
   Text,
   Spinner,
+  Grid,
+  Button,
 } from "@chakra-ui/react";
 import Layout from "../../components/Layout";
-import { useQuery } from 'react-query';
-import { Price } from "./crypto.type";
+import { dehydrate, QueryClient, useQuery } from 'react-query';
+import { Price, PriceProps } from "./crypto.type";
 import { getMarket } from "./crypto.action";
 import { formatNumber } from "./crypto.utils";
 
@@ -33,14 +35,46 @@ const Percentage = ({percent}: {percent: number}) => {
   return <Text color={color}>{formatPercent}</Text>
 }
 
-export default function Market() {
+// SSR INITIAL DATA
+export async function getStaticProps() {
+ const initialPrice = await getMarket();
+  return {
+    props: { initialPrice },
+  }; 
+}
+
+//SSR HYDRATE
+// export async function getStaticProps(){
+//   const queryClient = new QueryClient();
+//   await queryClient.prefetchQuery(['market', 1], () => getMarket());
+
+//   return {
+//     props: {
+//       dehydratedState: dehydrate(queryClient)
+//     }
+//   }
+// }
+
+export default function Market({initialPrice}: PriceProps) {
+  const [page, setPage] = useState(1);
   const { data, isError, isLoading, isFetching, isSuccess } = useQuery(
-    'market', 
-    getMarket, {
+    ['market', { page }],
+    () => getMarket(page), 
+    {
       staleTime: 3000,
-      refetchInterval: 10000
+      refetchInterval: 10000,
+      // initialData: initialPrice
     }
   );
+
+  const previousPage = () => {
+    setPage(prevState => prevState - 1);
+  }
+
+  const nextPage = () => {
+    setPage(prevState => prevState + 1);
+  }
+
   return (
     <Layout title="Crypto Market">
       {isFetching && (
@@ -59,7 +93,7 @@ export default function Market() {
         <Tbody>
           {isLoading && <Text color='blue.500'>Please wait...</Text>}
           {isError && <Text color='red.500'>There was an error processing your request</Text>}
-          {isSuccess && data.map((price: Price, index: number) => {
+          {data?.map((price: Price, index: number) => {
             return(
               <Tr key={index}>
                 <Td>
@@ -87,6 +121,25 @@ export default function Market() {
           })}
         </Tbody>
       </Table>
+      <Grid templateColumns="70% 1fr auto 1fr" gap={6} mt={10}>
+        <div></div>
+        <Button 
+          colorScheme='facebook'
+          onClick={previousPage}
+          size='sm'
+          isDisabled={page === 1 ? true : false}
+        >
+          Previous
+        </Button>
+        <Text>{page}</Text>
+        <Button 
+          colorScheme='facebook'
+          onClick={nextPage}
+          size='sm'
+        >
+          Next
+        </Button>
+      </Grid>
     </Layout>
   );
 }

@@ -9,3 +9,7 @@ export interface Price {
     market_cap: number;
     total_volume: number;
 }
+
+export interface PriceProps {
+    initialPrice: Price[];
+}
